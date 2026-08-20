@@ -13,9 +13,6 @@ struct TodoRow: View {
                     .foregroundStyle(todo.isCompleted ? .yellow : .secondary)
             }
             .buttonStyle(.plain)
-//            Image(systemName: todo.isCompleted ? "checkmark.circle" : "circle")
-//                .font(.system(size: 28, weight: .thin))
-//                .foregroundStyle(todo.isCompleted ? .yellow : .secondary)
             VStack(alignment: .leading, spacing: 5) {
                 Text(todo.title)
                     .font(.headline)

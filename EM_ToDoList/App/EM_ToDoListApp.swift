@@ -11,4 +11,3 @@ struct EM_ToDoListApp: App {
         }
     }
 }
-

@@ -23,9 +23,7 @@ final class SpeechRecognizer: ObservableObject {
                 )
             }
         }
-
         let audioAuthorized = await AVAudioApplication.requestRecordPermission()
-
         return speechAuthorized && audioAuthorized
     }
 
@@ -37,7 +35,9 @@ final class SpeechRecognizer: ObservableObject {
 
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+            try audioSession.setCategory(.playAndRecord,
+                                         mode: .measurement,
+                                         options: [.duckOthers, .defaultToSpeaker])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("Failed to configure audio session: \(error)")

@@ -6,7 +6,6 @@ struct TodoListView: View {
     @State private var searchText = ""
     @StateObject private var speechRecognizer = SpeechRecognizer()
     
-    
     init(presenter: TodoListPresenter,
          router: TodoListRouter) {
         _presenter = StateObject(wrappedValue: presenter)
@@ -119,10 +118,5 @@ struct TodoListView: View {
         .refreshable {
             presenter.viewDidLoad()
         }
-        
     }
 }
-
-
-
-
