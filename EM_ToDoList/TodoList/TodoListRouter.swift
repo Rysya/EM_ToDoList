@@ -12,4 +12,5 @@ final class TodoListRouter: ObservableObject, TodoListRouterProtocol {
 
     func showCreate() { path.append(Route.create) }
     func showEdit(_ todo: Todo) { path.append(Route.edit(todo)) }
+    func close() { path.removeLast() }
 }
