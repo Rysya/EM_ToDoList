@@ -75,12 +75,27 @@ struct TodoListView: View {
                                 Label("Удалить", systemImage: "trash")
                             }
                         }
+                        .contextMenu {
+                            Button {
+                                presenter.edit(todo)
+                            } label: {
+                                Label("Редактировать", systemImage: "pencil")
+                            }
+                            ShareLink(
+                                item: "Поделиться задачей: \(todo.title)"
+                            ) {
+                                Label("Поделиться", systemImage: "square.and.arrow.up")
+                            }
+                            Button(role: .destructive) {
+                                presenter.delete(todo)
+                            } label: {
+                                Label("Удалить", systemImage: "trash")
+                            }
+                        }
                     }
                 }
                 .listStyle(.plain)
-                .onScrollPhaseChange { _, _ in
-                    hideKeyboard()
-                }
+                
         }
     }
 

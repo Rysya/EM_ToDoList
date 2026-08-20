@@ -14,7 +14,7 @@ class URLManager: URLManagerProtocol {
     private let server = "dummyjson.com"
 
     func createURL(endpoint: Endpoint) -> URL? {
-        var str = gateway + server + endpoint.rawValue
+        let str = gateway + server + endpoint.rawValue
         let url = URL(string: str)
         
         return url
