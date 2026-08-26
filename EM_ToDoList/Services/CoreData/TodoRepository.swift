@@ -86,7 +86,7 @@ final class TodoRepository: TodoRepositoryProtocol {
         entity.isCompleted = todo.isCompleted
     }
 
-    private static func map(_ entity: TodoEntity) -> Todo {
+    private nonisolated static func map(_ entity: TodoEntity) -> Todo {
         Todo(id: Int(entity.id), title: entity.title ?? "", description: entity.todoDescription ?? "", createdAt: entity.createdAt ?? Date(), isCompleted: entity.isCompleted)
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 
-struct Todo: Identifiable, Equatable, Hashable {
+nonisolated
+struct Todo: Identifiable, Hashable, Sendable {
     let id: Int
     var title: String
     var description: String

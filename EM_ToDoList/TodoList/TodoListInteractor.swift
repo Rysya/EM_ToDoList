@@ -5,10 +5,12 @@ final class TodoListInteractor: TodoListInteractorProtocol {
     private let repository: TodoRepositoryProtocol
     private let network: NetworkServiceProtocol
     private var allTodos: [Todo] = []
-    
-    init(repository: TodoRepositoryProtocol, network: NetworkServiceProtocol) {
+    private var speechRecognizer: SpeechRecognizer
+
+    init(repository: TodoRepositoryProtocol, network: NetworkServiceProtocol, speechRecognizer: SpeechRecognizer) {
         self.repository = repository
         self.network = network
+        self.speechRecognizer = speechRecognizer
     }
     
     func load() {
@@ -29,6 +31,7 @@ final class TodoListInteractor: TodoListInteractorProtocol {
         }
     }
     
+    
     private func importFromAPI(_ result: Result<[TodoDTO], Error>) {
         switch result {
             case .success(let dtos):
@@ -37,7 +40,9 @@ final class TodoListInteractor: TodoListInteractorProtocol {
                     guard let self else { return }
                     presenter?.setLoading(.ready)
                     switch saveResult {
-                        case .success: allTodos = todos; presenter?.didLoad(todos)
+                        case .success:
+                            allTodos = todos
+                            presenter?.didLoad(todos)
                         case .failure(let error): presenter?.didError(error)
                     }
                 }
@@ -51,8 +56,11 @@ final class TodoListInteractor: TodoListInteractorProtocol {
         let snapshot = allTodos
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            let result = normalized.isEmpty ? snapshot : snapshot.filter {
-                $0.title.localizedCaseInsensitiveContains(normalized) || $0.description.localizedCaseInsensitiveContains(normalized)
+            let result = normalized.isEmpty
+            ? snapshot
+            : snapshot.filter {
+                $0.title.localizedCaseInsensitiveContains(normalized)
+                || $0.description.localizedCaseInsensitiveContains(normalized)
             }
             DispatchQueue.main.async { self?.presenter?.didLoad(result) }
         }
@@ -80,6 +88,14 @@ final class TodoListInteractor: TodoListInteractorProtocol {
                     presenter?.didLoad(allTodos)
                 case .failure(let error): presenter?.didError(error)
             }
+        }
+    }
+
+    func startVoiceRecording(with searchText: String) {
+        Task {
+            let allowed = await speechRecognizer.requestPermission()
+            guard allowed else { return }
+            speechRecognizer.toggleRecording(with: searchText)
         }
     }
 }

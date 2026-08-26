@@ -1,11 +1,23 @@
 import Speech
 import AVFoundation
-import Combine
+//import Combine
+protocol SpeechRecognizerDelegate: AnyObject {
+    func complitedVoiceRecording(isRecording: Bool, resultText: String)
+}
 
 @MainActor
-final class SpeechRecognizer: ObservableObject {
-    @Published var text = ""
-    @Published var isRecording = false
+final class SpeechRecognizer {
+    private var text = "" {
+        didSet {
+            delegate?.complitedVoiceRecording(isRecording: isRecording, resultText: text)
+        }
+    }
+    private var isRecording = false {
+        didSet {
+            delegate?.complitedVoiceRecording(isRecording: isRecording, resultText: text)
+        }
+    }
+    private var comlitedCompletion: ((Bool, String) -> Void)?
 
     private let audioEngine = AVAudioEngine()
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US" /*"ru-RU"*/))
@@ -15,6 +27,8 @@ final class SpeechRecognizer: ObservableObject {
     private var silenceTimer: Timer?
     private let silenceTimeout: TimeInterval = 2.0
 
+    weak var delegate: SpeechRecognizerDelegate?
+
     func requestPermission() async -> Bool {
         let speechAuthorized = await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
@@ -23,9 +37,7 @@ final class SpeechRecognizer: ObservableObject {
                 )
             }
         }
-
         let audioAuthorized = await AVAudioApplication.requestRecordPermission()
-
         return speechAuthorized && audioAuthorized
     }
 
@@ -37,7 +49,9 @@ final class SpeechRecognizer: ObservableObject {
 
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+            try audioSession.setCategory(.playAndRecord,
+                                         mode: .measurement,
+                                         options: [.duckOthers, .defaultToSpeaker])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("Failed to configure audio session: \(error)")
@@ -112,7 +126,8 @@ final class SpeechRecognizer: ObservableObject {
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
-    func toggleRecording() {
+    func toggleRecording(with searchText: String) {
+        text = searchText
         if isRecording {
             stopRecording()
         } else {

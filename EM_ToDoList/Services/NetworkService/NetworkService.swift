@@ -4,26 +4,17 @@ protocol NetworkServiceProtocol {
     func fetchTodos(completion: @escaping (Result<[TodoDTO], Error>) -> Void)
 }
 
-enum NetworkError: LocalizedError {
-    case invalidURL
-    case badResponse
-    case emptyResponse
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL: "Некорректный URL"
-        case .badResponse: "Ошибка ответа сервера"
-        case .emptyResponse: "Сервер не вернул данные"
-        }
-    }
-}
-
 final class NetworkService: NetworkServiceProtocol {
     private let session: URLSession
-    init(session: URLSession = .shared) { self.session = session }
+    private let urlManager: URLManagerProtocol
+    
+    init(session: URLSession = .shared, urlManager: URLManagerProtocol) {
+        self.session = session
+        self.urlManager = urlManager
+    }
 
     func fetchTodos(completion: @escaping (Result<[TodoDTO], Error>) -> Void) {
-        guard let url = URL(string: "https://dummyjson.com/todos") else {
+        guard let url = urlManager.createURL(endpoint: .todos) else {
             DispatchQueue.main.async { completion(.failure(NetworkError.invalidURL)) }
             return
         }
