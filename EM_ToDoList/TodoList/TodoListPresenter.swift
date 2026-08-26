@@ -41,11 +41,20 @@ final class TodoListPresenter: ObservableObject {
     func add() { router?.showCreate() }
     func edit(_ todo: Todo) { router?.showEdit(todo) }
 
-    func didLoad(_ todos: [Todo]) { self.todos = todos; state = .ready }
+    func didLoad(_ todos: [Todo]) {
+        self.todos = todos
+        state = .ready
+    }
+    
     func setLoading(_ state: State) {
         self.state = state
     }
-    func didError(_ error: Error) { state = .loading; errorMessage = error.localizedDescription }
+    
+    func didError(_ error: Error) {
+        state = .loading
+        errorMessage = error.localizedDescription
+    }
+    
     func didTapVoiceRecording() {
         interactor.startVoiceRecording(with: searchText)
     }

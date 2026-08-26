@@ -31,6 +31,7 @@ final class TodoListInteractor: TodoListInteractorProtocol {
         }
     }
     
+    
     private func importFromAPI(_ result: Result<[TodoDTO], Error>) {
         switch result {
             case .success(let dtos):
@@ -39,7 +40,9 @@ final class TodoListInteractor: TodoListInteractorProtocol {
                     guard let self else { return }
                     presenter?.setLoading(.ready)
                     switch saveResult {
-                        case .success: allTodos = todos; presenter?.didLoad(todos)
+                        case .success:
+                            allTodos = todos
+                            presenter?.didLoad(todos)
                         case .failure(let error): presenter?.didError(error)
                     }
                 }
@@ -53,8 +56,11 @@ final class TodoListInteractor: TodoListInteractorProtocol {
         let snapshot = allTodos
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            let result = normalized.isEmpty ? snapshot : snapshot.filter {
-                $0.title.localizedCaseInsensitiveContains(normalized) || $0.description.localizedCaseInsensitiveContains(normalized)
+            let result = normalized.isEmpty
+            ? snapshot
+            : snapshot.filter {
+                $0.title.localizedCaseInsensitiveContains(normalized)
+                || $0.description.localizedCaseInsensitiveContains(normalized)
             }
             DispatchQueue.main.async { self?.presenter?.didLoad(result) }
         }
